@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.ace.entity">
+    <!-- class对应实体类 table对应数据中的表，如果不配置table，默认和实体类名字一致 -->
+    <class name="com.ace.entity.User" table="t_user">
+        <!-- 配置主键 -->
+        <id column="id" type="int" name="id">
+            <!-- native 主键策略根据数据类型定义 -->
+            <!-- 如果不指定序列，会使用公用的序列 -->
+            <generator class="native"/>
+        </id>
+        <property name="userName"></property>
+        <property name="password"></property>
+    </class>
+
+</hibernate-mapping>
