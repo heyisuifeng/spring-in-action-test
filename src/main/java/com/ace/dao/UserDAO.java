@@ -1,9 +1,12 @@
 package com.ace.dao;
 
+import com.ace.dao.HibernateDAO;
 import com.ace.entity.User;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -32,5 +35,18 @@ public class UserDAO extends HibernateDAO {
         Transaction t = session.beginTransaction();
         session.save(object);
         t.commit();
+    }
+
+    public User findByUserName(String userName) {
+        Session session = this.currentSession();
+        session.beginTransaction();
+        String hql = "from User where userName= :username";
+        Query query = session.createQuery(hql);
+        query.setString("username", userName);
+        List<User> list = query.list();
+        if (CollectionUtils.isEmpty(list)) {
+            return null;
+        }
+        return list.get(0);
     }
 }

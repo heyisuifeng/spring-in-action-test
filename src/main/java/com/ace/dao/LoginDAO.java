@@ -1,5 +1,6 @@
 package com.ace.dao;
 
+import com.ace.dao.BaseDAO;
 import com.ace.entity.User;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;

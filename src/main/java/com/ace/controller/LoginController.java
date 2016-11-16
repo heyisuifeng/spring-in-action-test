@@ -4,14 +4,17 @@ import com.ace.entity.User;
 import com.ace.request.CreateUserRequest;
 import com.ace.service.LoginService;
 import com.ace.service.UserService;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,23 +29,25 @@ public class LoginController {
     @Inject
     private LoginService loginService;
 
+
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public String login(HttpServletRequest request) {
-        User user = loginService.login(request.getParameter("userName"), request.getParameter("password"));
-        User user1 = userService.getById(1);
-        if (user != null) {
-            HttpSession session = request.getSession();
-            session.setAttribute("user", user);
-            return "index";
+    public String login(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+        User user = new User();
+        user.setUserName(request.getParameter("userName"));
+        user.setPassword(request.getParameter("password"));
+        try {
+            SecurityUtils.getSubject().login(new UsernamePasswordToken(user.getUserName(), user.getPassword()));
+            request.getSession().setAttribute("user", user);
+            return "redirect:/search";
+        } catch (AuthenticationException e) {
+            redirectAttributes.addFlashAttribute("message", "用户名或密码错误");
+            return "redirect:/";
         }
-        return "login";
     }
 
 
     @RequestMapping(value = "/search", method = RequestMethod.GET)
     public String search() {
-        User user = userService.getById(2);
-        System.out.println(user.getUserName());
         return "index";
     }
 

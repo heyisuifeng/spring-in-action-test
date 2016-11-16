@@ -26,4 +26,8 @@ public class UserService {
     public void registerUser(User user) {
         userDAO.registerUser(user);
     }
+
+    public User findByUserName(String userName) {
+        return userDAO.findByUserName(userName);
+    }
 }
