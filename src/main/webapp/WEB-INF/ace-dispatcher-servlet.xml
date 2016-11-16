@@ -48,16 +48,16 @@
 
     <!--使用hibernate访问数据库-->
     <!-- xml方式定义对象与数据库之间的映射 -->
-    <bean id="sessionFactory"
+    <!--<bean id="sessionFactory"
           class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
-        <!-- 映射文件目录 -->
-        <!--<property name="mappingDirectoryLocations">
+        &lt;!&ndash; 映射文件目录 &ndash;&gt;
+        &lt;!&ndash;<property name="mappingDirectoryLocations">
             <list>
                 <value>WEB-INF/User.hbm.xml</value>
             </list>
-        </property>-->
-        <!-- resources目录下查找 -->
+        </property>&ndash;&gt;
+        &lt;!&ndash; resources目录下查找 &ndash;&gt;
         <property name="mappingResources">
             <list>
                 <value>User.hbm.xml</value>
@@ -66,42 +66,49 @@
 
         <property name="hibernateProperties">
             <props>
-                <!--配置Hibernate使用Mysql数据库并且要按照MySQLDialect来构建SQL-->
-                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop><!--SQL dialect 方言-->
-                <prop key="hibernate.show_sql">true</prop>
-                <prop key="hibernate.format_sql">true</prop>
-                <prop key="hibernate.current_session_context_class">thread</prop>
-                <prop key="hibernate.connection.autocommit">true</prop>
-                <!-- 自动创表 -->
-                <!--<prop key="hibernate.hbm2ddl.auto">create</prop>-->
-            </props>
-        </property>
-    </bean>
-
-    <!--使用注解方式-->
-    <!--<bean id="sessionFactory"
-          class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
-        <property name="dataSource" ref="dataSource"/>
-        &lt;!&ndash; 映射文件目录 &ndash;&gt;
-        <property name="annotatedClasses">
-            <list>
-                <value>com.ace.entity.User</value>
-            </list>
-        </property>
-
-
-        <property name="hibernateProperties">
-            <props>
                 &lt;!&ndash;配置Hibernate使用Mysql数据库并且要按照MySQLDialect来构建SQL&ndash;&gt;
                 <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>&lt;!&ndash;SQL dialect 方言&ndash;&gt;
                 <prop key="hibernate.show_sql">true</prop>
                 <prop key="hibernate.format_sql">true</prop>
                 <prop key="hibernate.current_session_context_class">thread</prop>
+                <prop key="hibernate.connection.autocommit">true</prop>
                 &lt;!&ndash; 自动创表 &ndash;&gt;
                 &lt;!&ndash;<prop key="hibernate.hbm2ddl.auto">create</prop>&ndash;&gt;
             </props>
         </property>
     </bean>-->
+
+    <!--使用注解方式-->
+    <bean id="sessionFactory"
+          class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+
+        <!-- 自动扫描注解方式配置的hibernate类文件 -->
+        <property name="packagesToScan">
+            <list>
+                <value>com.ace.entity</value>
+            </list>
+        </property>
+
+        <!-- 自动扫描hbm方式配置的hibernate文件和.hbm文件 -->
+        <!--<property name="mappingDirectoryLocations">
+            <list>
+                <value>classpath:User.hbm.xml</value>
+            </list>
+        </property>-->
+
+        <property name="hibernateProperties">
+            <props>
+                <!--配置Hibernate使用Mysql数据库并且要按照MySQLDialect来构建SQL-->
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop><!--SQL dialect 方言-->
+                <prop key="hibernate.show_sql">true</prop>
+                <prop key="hibernate.format_sql">true</prop>
+                <prop key="hibernate.current_session_context_class">thread</prop>
+                <!-- 自动创表 -->
+                <!--<prop key="hibernate.hbm2ddl.auto">create</prop>-->
+            </props>
+        </property>
+    </bean>
 
     <!--第六章事务管理-->
     <!--JDBC事务：当使用的是JDBC持久化的时候，使用此配置-->
@@ -113,4 +120,46 @@
     <bean id="hibernateTransactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
         <property name="sessionFactory" ref="sessionFactory"/><!--配置Hibernate SessionFactory-->
     </bean>
+
+    <!--配置权限管理器-->
+    <bean id="securityManager"
+          class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <!--ref对应我们写的realm shiroService-->
+        <property name="realm" ref="shiroService"/>
+        <!--使用下面配置的缓存管理器-->
+        <property name="cacheManager" ref="cacheManager"/>
+    </bean>
+
+    <bean id="cacheManager" class="org.apache.shiro.cache.MemoryConstrainedCacheManager"/>
+
+    <!--配置Shiro的过滤器工厂类，id 和web.xml中配置的过滤器一致 -->
+    <bean id="shiroFilter"
+          class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <!--调用我们配置的权限管理器-->
+        <property name="securityManager" ref="securityManager"/>
+        <!--配置我们的登录请求地址(启动时的首页面地址)-->
+        <property name="loginUrl" value="/"/>
+        <!--配置我们在登录页登录成功后的跳转地址，如果你访问的是非/login地址，则跳到您访问的地址-->
+        <property name="successUrl" value="/search"/>
+        <!-- 如果您请求的资源不再您的权限范围，则跳转到/403请求地址 -->
+        <property name="unauthorizedUrl" value="/403"/>
+        <!-- 权限配置 -->
+        <property name="filterChainDefinitions">
+            <value>
+                <!-- anon表示此地址不需要任何权限即可访问 -->
+                /static/**=anon
+                /login=anon
+                <!-- perms[user:query]表示访问此连接需要权限为user:query的用户 -->
+                /user=perms[user:query]
+                <!-- roles[manager]表示访问此连接需要用户的角色为manager -->
+                /user/add=roles[manager]
+                /user/del/**=roles[admin]
+                /user/edit/**=roles[manager]
+                <!--所有的请求(除去配置的静态资源请求或请求地址为anon的请求)都要通过登录验证,如果未登录则跳到/login-->
+                /** = authc
+            </value>
+        </property>
+    </bean>
+
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
 </beans>
