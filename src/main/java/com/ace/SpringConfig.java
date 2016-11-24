@@ -14,6 +14,7 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import javax.sql.DataSource;
 import java.beans.PropertyVetoException;
@@ -25,6 +26,15 @@ import java.util.Map;
  */
 @Configuration
 public class SpringConfig {
+
+    @Bean
+    public InternalResourceViewResolver resourceViewResolver() throws PropertyVetoException{
+        InternalResourceViewResolver resourceViewResolver = new InternalResourceViewResolver();
+        resourceViewResolver.setPrefix("/WEB-INF/jsp/");
+        resourceViewResolver.setSuffix(".jsp");
+        return resourceViewResolver;
+    }
+
     @Bean
     public DataSource dataSource() throws PropertyVetoException{
         BasicDataSource dataSource = new BasicDataSource();
@@ -47,7 +57,7 @@ public class SpringConfig {
 
     //配置权限管理器
     @Bean
-    public DefaultWebSecurityManager getShiroSecurityManager() throws PropertyVetoException{
+    public DefaultWebSecurityManager shiroSecurityManager() throws PropertyVetoException{
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         securityManager.setRealm(new ShiroService());
         securityManager.setCacheManager(new MemoryConstrainedCacheManager());
@@ -57,11 +67,18 @@ public class SpringConfig {
     @Bean
     public FactoryBean<ShiroFilterFactoryBean> shiroFilterFactoryBean() throws PropertyVetoException{
         ShiroFilterFactoryBean shiroFilter = new ShiroFilterFactoryBean();
-        shiroFilter.setSecurityManager(getShiroSecurityManager());
+        shiroFilter.setSecurityManager(shiroSecurityManager());
         shiroFilter.setLoginUrl("/");
         shiroFilter.setSuccessUrl("/search");
         shiroFilter.setUnauthorizedUrl("/403");
         Map<String,String> map = new HashMap<>();
+        map.put("/static/**","");
+        map.put("/login","anon");
+        map.put("/user","perms[user:query]");
+        map.put("/user/add","roles[manager]");
+        map.put("/user/del/**","roles[admin]");
+        map.put("/user/edit/**","roles[manager]");
+        map.put("/**","authc");
         shiroFilter.setFilterChainDefinitionMap(map);
         return shiroFilter;
     }
