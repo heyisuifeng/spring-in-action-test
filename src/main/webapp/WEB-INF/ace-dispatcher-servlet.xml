@@ -10,12 +10,12 @@
     <mvc:annotation-driven/>
 
     <!-- 配置spring mvc视图解析器 -->
-    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-        <!-- 前缀 -->
+    <!--<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        &lt;!&ndash; 前缀 &ndash;&gt;
         <property name="prefix" value="/WEB-INF/jsp/"></property>
-        <!-- 后缀 -->
+        &lt;!&ndash; 后缀 &ndash;&gt;
         <property name="suffix" value=".jsp"></property>
-    </bean>
+    </bean>-->
 
     <mvc:resources mapping="/assets/**" location="/assets/"/>
 
@@ -29,7 +29,7 @@
 
     <!--第五章征服数据库-->
     <!--使用数据源连接池-->
-    <bean id="dataSource"
+    <!--<bean id="dataSource"
           class="org.apache.commons.dbcp.BasicDataSource">
         <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
         <property name="url" value="jdbc:mysql://127.0.0.1:3306/shiro_test?useUnicode\=true;characterEncoding\=utf8;autoReconnect\=true"/>
@@ -37,14 +37,14 @@
         <property name="password" value="p@ssw0rd"/>
         <property name="initialSize" value="5"/>
         <property name="maxActive" value="10"/>
-    </bean>
+    </bean>-->
 
     <!--使用JDBC模版类访问数据库-->
     <!--最新的已经遗弃了SimpleJdbcTemplate模版-->
-    <bean id="jdbcTemplate"
+    <!--<bean id="jdbcTemplate"
           class="org.springframework.jdbc.core.JdbcTemplate">
         <constructor-arg ref="dataSource"/>
-    </bean>
+    </bean>-->
 
     <!--使用注解方式-->
     <bean id="sessionFactory"
@@ -80,54 +80,54 @@
 
     <!--第六章事务管理-->
     <!--JDBC事务：当使用的是JDBC持久化的时候，使用此配置-->
-    <bean id="JDBCTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <!--<bean id="JDBCTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
-    <!--Hibernate事务：当使用的是hibernate持久化的时候，使用此配置-->
+    &lt;!&ndash;Hibernate事务：当使用的是hibernate持久化的时候，使用此配置&ndash;&gt;
     <bean id="hibernateTransactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-        <property name="sessionFactory" ref="sessionFactory"/><!--配置Hibernate SessionFactory-->
-    </bean>
+        <property name="sessionFactory" ref="sessionFactory"/>&lt;!&ndash;配置Hibernate SessionFactory&ndash;&gt;
+    </bean>-->
 
     <!--配置权限管理器-->
-    <bean id="securityManager"
+    <!--<bean id="securityManager"
           class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
-        <!--ref对应我们写的realm shiroService-->
+        &lt;!&ndash;ref对应我们写的realm shiroService&ndash;&gt;
         <property name="realm" ref="shiroService"/>
-        <!--使用下面配置的缓存管理器-->
+        &lt;!&ndash;使用下面配置的缓存管理器&ndash;&gt;
         <property name="cacheManager" ref="cacheManager"/>
     </bean>
-
-    <bean id="cacheManager" class="org.apache.shiro.cache.MemoryConstrainedCacheManager"/>
+-->
+    <!--<bean id="cacheManager" class="org.apache.shiro.cache.MemoryConstrainedCacheManager"/>-->
 
     <!--配置Shiro的过滤器工厂类，id 和web.xml中配置的过滤器一致 -->
-    <bean id="shiroFilter"
+    <!--<bean id="shiroFilter"
           class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
-        <!--调用我们配置的权限管理器-->
+        &lt;!&ndash;调用我们配置的权限管理器&ndash;&gt;
         <property name="securityManager" ref="securityManager"/>
-        <!--配置我们的登录请求地址(启动时的首页面地址)-->
+        &lt;!&ndash;配置我们的登录请求地址(启动时的首页面地址)&ndash;&gt;
         <property name="loginUrl" value="/"/>
-        <!--配置我们在登录页登录成功后的跳转地址，如果你访问的是非/login地址，则跳到您访问的地址-->
+        &lt;!&ndash;配置我们在登录页登录成功后的跳转地址，如果你访问的是非/login地址，则跳到您访问的地址&ndash;&gt;
         <property name="successUrl" value="/search"/>
-        <!-- 如果您请求的资源不再您的权限范围，则跳转到/403请求地址 -->
+        &lt;!&ndash; 如果您请求的资源不再您的权限范围，则跳转到/403请求地址 &ndash;&gt;
         <property name="unauthorizedUrl" value="/403"/>
-        <!-- 权限配置 -->
+        &lt;!&ndash; 权限配置 &ndash;&gt;
         <property name="filterChainDefinitions">
             <value>
-                <!-- anon表示此地址不需要任何权限即可访问 -->
+                &lt;!&ndash; anon表示此地址不需要任何权限即可访问 &ndash;&gt;
                 /static/**=anon
                 /login=anon
-                <!-- perms[user:query]表示访问此连接需要权限为user:query的用户 -->
+                &lt;!&ndash; perms[user:query]表示访问此连接需要权限为user:query的用户 &ndash;&gt;
                 /user=perms[user:query]
-                <!-- roles[manager]表示访问此连接需要用户的角色为manager -->
+                &lt;!&ndash; roles[manager]表示访问此连接需要用户的角色为manager &ndash;&gt;
                 /user/add=roles[manager]
                 /user/del/**=roles[admin]
                 /user/edit/**=roles[manager]
-                <!--所有的请求(除去配置的静态资源请求或请求地址为anon的请求)都要通过登录验证,如果未登录则跳到/login-->
+                &lt;!&ndash;所有的请求(除去配置的静态资源请求或请求地址为anon的请求)都要通过登录验证,如果未登录则跳到/login&ndash;&gt;
                 /** = authc
             </value>
         </property>
-    </bean>
+    </bean>-->
 
     <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
 </beans>
