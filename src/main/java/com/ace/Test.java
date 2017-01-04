@@ -13,7 +13,22 @@ import javax.servlet.ServletContext;
  * Created by yecanyi on 2016/12/22.
  */
 public class Test {
-    public static void main(String [] args){
+    private int i = 10;
 
+    //构造块
+    {
+        System.out.print("ddd");
+    }
+    class A {
+        private int i =20;
+
+        public void a(){
+            System.out.println(Test.this.i);
+        }
+    }
+    public static void main(String [] args){
+        Test test = new Test();
+        A a = test.new A();
+        a.a();
     }
 }
