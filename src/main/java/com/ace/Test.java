@@ -37,3 +37,16 @@ public class Test {
         a.a();
     }
 }
+
+
+interface A {
+    public void show();
+}
+
+interface B{
+    public void show();
+}
+
+class C implements A,B{
+    public void show(){}
+}
