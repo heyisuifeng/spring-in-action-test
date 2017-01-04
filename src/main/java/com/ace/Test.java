@@ -15,7 +15,12 @@ import javax.servlet.ServletContext;
 public class Test {
     private int i = 10;
 
-    //构造块
+    //静态代码块只执行一次。
+
+    //构造代码块在每一次构造对象的开始执行，每构造一次都会执行一次。
+    // 其与构造函数的区别是构造代码块无论针对所有的对象初始化都会执行，构造函数只会和相匹配的函数一致时才会执行。
+
+
     {
         System.out.print("ddd");
     }
